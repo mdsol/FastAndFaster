@@ -34,3 +34,6 @@ bld/
 # NUNIT
 *.VisualState.xml
 TestResult.xml
+
+# Artifacts
+BenchmarkDotNet.Artifacts/

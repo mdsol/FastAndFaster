@@ -1,25 +1,50 @@
-﻿using System;
+﻿using FastAndFaster.Helpers;
+using Microsoft.Extensions.Caching.Memory;
+using System;
+using System.Reflection;
 using System.Reflection.Emit;
 
 namespace FastAndFaster
 {
-    public class Initializer
+    public static class Initializer
     {
-        public static object Create(string typeName)
+        public static int SlidingExpirationInSecs { get; set; } = 12 * 3600;
+
+        private const byte CONSTRUCTOR_LOAD_INDEX = 0;
+
+        private static readonly MemoryCache _cache = new MemoryCache(new MemoryCacheOptions());
+
+        public static Func<object[], object> Create(string typeName, Type[] parameterTypes = null)
         {
-            var type = Type.GetType(typeName);
+            if (parameterTypes is null)
+            {
+                parameterTypes = Type.EmptyTypes;
+            }
+            var key = (typeName, TypeHelper.GetTypesIdentity(parameterTypes));
 
-            var dynCtor = new DynamicMethod($"{type.FullName}_ctor", type, Type.EmptyTypes, true);
+            return _cache.GetOrCreate(key, entry =>
+            {
+                entry.SlidingExpiration = TimeSpan.FromSeconds(SlidingExpirationInSecs);
+
+                var type = TypeHelper.GetTypeByName(typeName);
+                var delegateParameterTypes = new[] { typeof(object[]) };
+                var dynCtor = new DynamicMethod(
+                    $"{type.FullName}_{TypeHelper.GetTypesIdentity(parameterTypes)}_ctor",
+                    type, delegateParameterTypes, true);
+                var ctorInfo = TypeHelper.GetConstructorInfoByType(type, parameterTypes);
+
+                GenerateIL(dynCtor, ctorInfo, parameterTypes);
+
+                return (Func<object[], object>)dynCtor.CreateDelegate(typeof(Func<object[], object>));
+            });
+        }
+
+        private static void GenerateIL(
+            DynamicMethod dynCtor, ConstructorInfo ctorInfo, Type[] parameterTypes)
+        {
             var il = dynCtor.GetILGenerator();
-            var ctorInfo = type.GetConstructor(Type.EmptyTypes);
-
-            il.Emit(OpCodes.Newobj, ctorInfo);
-            il.Emit(OpCodes.Ret);
-
-            var ctorDelegate = (Func<object>)dynCtor.CreateDelegate(typeof(Func<object>));
-
-            var instance = ctorDelegate();
-            return instance;
+            IlHelper.LoadArguments(il, CONSTRUCTOR_LOAD_INDEX, parameterTypes);
+            IlHelper.CreateInstance(il, ctorInfo);
         }
     }
 }
