@@ -4,17 +4,35 @@ using System;
 using System.Reflection;
 using System.Reflection.Emit;
 
-// TODO: add comment everywhere
 namespace FastAndFaster
 {
     public static class Invocator
     {
+        /// <summary>
+        /// Sliding cache expiration time for delegates to invoke methods.
+        /// The unit is second and the default value is 43,200 (12 hours).
+        /// </summary>
         public static int SlidingExpirationInSecs { get; set; } = 12 * 3600;
 
         private const byte METHOD_LOAD_INDEX = 1;
 
         private static readonly MemoryCache _cache = new MemoryCache(new MemoryCacheOptions());
 
+        /// <summary>
+        /// Create a delegate to invoke a public non-static method that returns void.
+        /// </summary>
+        /// <param name="typeName">
+        /// The assembly qualified name of the target class.
+        /// </param>
+        /// <param name="methodName">
+        /// The name of the target method.
+        /// </param>
+        /// <param name="parameterTypes">
+        /// The list of the method's parameter types. For a parameterless method, this value can be omitted.
+        /// </param>
+        /// <returns>
+        /// A delegate to invoke the target method. The delegate type is Action<object, object[]>.
+        /// </returns>
         public static Action<object, object[]> CreateAction(
             string typeName, string methodName, Type[] parameterTypes = null)
         {
@@ -43,6 +61,21 @@ namespace FastAndFaster
             });
         }
 
+        /// <summary>
+        /// Create a delegate to invoke a public non-static method that returns some result.
+        /// </summary>
+        /// <param name="typeName">
+        /// The assembly qualified name of the target class.
+        /// </param>
+        /// <param name="methodName">
+        /// The name of the target method.
+        /// </param>
+        /// <param name="parameterTypes">
+        /// The list of the method's parameter types. For a parameterless method, this value can be omitted.
+        /// </param>
+        /// <returns>
+        /// A delegate to invoke the target method. The delegate type is Func<object, object[], object>.
+        /// </returns>
         public static Func<object, object[], object> CreateFunc(
             string typeName, string methodName, Type[] parameterTypes = null)
         {
@@ -78,6 +111,10 @@ namespace FastAndFaster
 
             if (methodInfo.IsStatic)
             {
+                // For a static method, there is no class instance to load to the stack.
+                // We can skip calling LoadTarget.
+                // Moreover, a static method cannot be abstract nor virtual.
+                // Because of that, we can emit OpCode "Call" instead of "Callvirt" 
                 IlHelper.LoadArguments(il, METHOD_LOAD_INDEX, parameterTypes);
                 IlHelper.ExecuteMethod(il, methodInfo, false);
             }

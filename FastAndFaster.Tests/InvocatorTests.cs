@@ -437,7 +437,7 @@ namespace FastAndFaster.Tests
 
         [Theory]
         [MemberData(nameof(InterfaceData))]
-        public void ShouldCallMethodViaInterface(
+        public void ShouldCallMethod_InterfaceInputOrOutput(
             string methodName, Type[] argumentTypes, object[] arguments, object expectedRs)
         {
             // Arrange

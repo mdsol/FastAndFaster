@@ -38,6 +38,14 @@ namespace FastAndFaster.Helpers
             return methodInfo;
         }
 
+        /// <summary>
+        /// Concatenate the names of all parameter types into a string,
+        /// then use the hash code of that string as part of the method's identity.
+        /// We cannot use the hashcode of "Type[] types" directly because
+        /// 2 different Type arrays with the exact content still hash to 2 different values.
+        /// </summary>
+        /// <param name="types"></param>
+        /// <returns></returns>
         internal static int GetTypesIdentity(Type[] types)
         {
             var sb = new StringBuilder();

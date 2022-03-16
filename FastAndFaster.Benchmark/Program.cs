@@ -2,7 +2,6 @@
 using BenchmarkDotNet.Running;
 using FastAndFaster.Tests.DummyClasses;
 using System;
-using System.Collections.Generic;
 using System.Reflection;
 
 namespace FastAndFaster.Benchmark

@@ -117,7 +117,7 @@ namespace FastAndFaster.Tests
         }
 
         [Fact]
-        public void ShouldCallStaticFunc_Interface()
+        public void ShouldCallStaticFunc_InterfaceInput()
         {
             // Arrange
             var typeName = typeof(InvocationStaticTarget).AssemblyQualifiedName;
@@ -136,21 +136,22 @@ namespace FastAndFaster.Tests
         }
 
         [Fact]
-        public void ShouldCallStaticAction_Interface()
+        public void ShouldCallStaticAction_InterfaceInput()
         {
             // Arrange
             var typeName = typeof(InvocationStaticTarget).AssemblyQualifiedName;
             var methodName = nameof(InvocationStaticTarget.ActionWithInterface);
-            var argumentTypes = new[] { typeof(int) };
-            var arguments = new object[] { 5 };
-            var expectedRs = new List<int> { 0, 1, 2, 3, 4 };
+            var argumentTypes = new[] { typeof(IEnumerable<int>) };
+            var ages = new List<int> { 5, 6, 7 };
+            var arguments = new object[] { ages };
+            var expectedRs = ages.Count;
             var invocator = Invocator.CreateAction(typeName, methodName, argumentTypes);
 
             // Act
             invocator(null, arguments);
 
             // Assert
-            InvocationStaticTarget.InterfaceTestData.Should().BeEquivalentTo(expectedRs);
+            InvocationStaticTarget.InterfaceTestData.Should().Be(expectedRs);
         }
     }
 }
