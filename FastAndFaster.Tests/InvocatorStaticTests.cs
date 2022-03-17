@@ -68,9 +68,8 @@ namespace FastAndFaster.Tests
             InvocationStaticTarget.ActionHandleRefData.Should().BeEquivalentTo(expectedResult);
         }
 
-        public static IEnumerable<object[]> StaticFuncData()
-        {
-            return new List<object[]>
+        public static IEnumerable<object[]> StaticFuncData() =>
+            new List<object[]>
             {
                 new object[]
                 {
@@ -98,7 +97,6 @@ namespace FastAndFaster.Tests
                     InvocationStaticTarget.FuncParameterlessData
                 }
             };
-        }
 
         [Theory]
         [MemberData(nameof(StaticFuncData))]

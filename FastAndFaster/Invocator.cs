@@ -30,28 +30,32 @@ namespace FastAndFaster
         /// <param name="parameterTypes">
         /// The list of the method's parameter types. For a parameterless method, this value can be omitted.
         /// </param>
+        /// <param name="parameterTypes">
+        /// The list of concrete types and index of generic parameter types in the target method.
+        /// For a non-generic method, this parameter is omitted.
+        /// </param>
         /// <returns>
         /// A delegate to invoke the target method. The delegate type is Action<object, object[]>.
         /// </returns>
         public static Action<object, object[]> CreateAction(
-            string typeName, string methodName, Type[] parameterTypes = null)
+            string typeName, string methodName, Type[] parameterTypes = null, GenericInfo genericInfo = null) // TODO: add genericInfo to docstring
         {
             if (parameterTypes is null)
             {
                 parameterTypes = Type.EmptyTypes;
             }
-            var key = (typeName, methodName, TypeHelper.GetTypesIdentity(parameterTypes));
+            var key = (typeName, methodName, TypeHelper.GetParameterTypesIdentity(parameterTypes, genericInfo));
 
             return _cache.GetOrCreate(key, entry =>
             {
                 entry.SlidingExpiration = TimeSpan.FromSeconds(SlidingExpirationInSecs);
 
                 var type = TypeHelper.GetTypeByName(typeName);
-                var methodInfo = TypeHelper.GetMethodInfoByName(type, methodName, parameterTypes);
+                var methodInfo = TypeHelper.GetMethodInfoByName(type, methodName, parameterTypes, genericInfo);
 
                 var delegateParameterTypes = new[] { typeof(object), typeof(object[]) };
                 var dynInvoc = new DynamicMethod(
-                    $"{type.FullName}_{methodInfo.Name}_{TypeHelper.GetTypesIdentity(parameterTypes)}_Invoc",
+                    $"{type.FullName}_{methodInfo.Name}_{TypeHelper.GetParameterTypesIdentity(parameterTypes, genericInfo)}_Invoc",
                     null, delegateParameterTypes, true);
 
                 GenerateIL(dynInvoc, type, methodInfo, parameterTypes);
@@ -73,28 +77,32 @@ namespace FastAndFaster
         /// <param name="parameterTypes">
         /// The list of the method's parameter types. For a parameterless method, this value can be omitted.
         /// </param>
+        /// <param name="parameterTypes">
+        /// The list of concrete types and index of generic parameter types in the target method.
+        /// For a non-generic method, this parameter is omitted.
+        /// </param>
         /// <returns>
         /// A delegate to invoke the target method. The delegate type is Func<object, object[], object>.
         /// </returns>
         public static Func<object, object[], object> CreateFunc(
-            string typeName, string methodName, Type[] parameterTypes = null)
+            string typeName, string methodName, Type[] parameterTypes = null, GenericInfo genericInfo = null)
         {
             if (parameterTypes is null)
             {
                 parameterTypes = Type.EmptyTypes;
             }
-            var key = (typeName, methodName, TypeHelper.GetTypesIdentity(parameterTypes));
+            var key = (typeName, methodName, TypeHelper.GetParameterTypesIdentity(parameterTypes, genericInfo));
 
             return _cache.GetOrCreate(key, entry =>
             {
                 entry.SlidingExpiration = TimeSpan.FromSeconds(SlidingExpirationInSecs);
 
                 var type = TypeHelper.GetTypeByName(typeName);
-                var methodInfo = TypeHelper.GetMethodInfoByName(type, methodName, parameterTypes);
+                var methodInfo = TypeHelper.GetMethodInfoByName(type, methodName, parameterTypes, genericInfo);
 
                 var delegateParameterTypes = new[] { typeof(object), typeof(object[]) };
                 var dynInvoc = new DynamicMethod(
-                    $"{type.FullName}_{methodInfo.Name}_{TypeHelper.GetTypesIdentity(parameterTypes)}_Invoc",
+                    $"{type.FullName}_{methodInfo.Name}_{TypeHelper.GetParameterTypesIdentity(parameterTypes, genericInfo)}_Invoc",
                     typeof(object), delegateParameterTypes, true);
 
                 GenerateIL(dynInvoc, type, methodInfo, parameterTypes);
@@ -122,7 +130,7 @@ namespace FastAndFaster
             {
                 IlHelper.LoadTarget(il, type);
                 IlHelper.LoadArguments(il, METHOD_LOAD_INDEX, parameterTypes);
-                IlHelper.ExecuteMethod(il, methodInfo);
+                IlHelper.ExecuteMethod(il, methodInfo, true);
             }
         }
     }

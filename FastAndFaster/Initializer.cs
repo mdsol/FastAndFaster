@@ -36,7 +36,7 @@ namespace FastAndFaster
             {
                 parameterTypes = Type.EmptyTypes;
             }
-            var key = (typeName, TypeHelper.GetTypesIdentity(parameterTypes));
+            var key = (typeName, TypeHelper.GetParameterTypesIdentity(parameterTypes));
 
             return _cache.GetOrCreate(key, entry =>
             {
@@ -45,7 +45,7 @@ namespace FastAndFaster
                 var type = TypeHelper.GetTypeByName(typeName);
                 var delegateParameterTypes = new[] { typeof(object[]) };
                 var dynCtor = new DynamicMethod(
-                    $"{type.FullName}_{TypeHelper.GetTypesIdentity(parameterTypes)}_ctor",
+                    $"{type.FullName}_{TypeHelper.GetParameterTypesIdentity(parameterTypes)}_ctor",
                     type, delegateParameterTypes, true);
                 var ctorInfo = TypeHelper.GetConstructorInfoByType(type, parameterTypes);
 

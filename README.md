@@ -14,13 +14,14 @@ You can find more information about this library in the following blog post.
     - [Call methods that return void](#call-methods-that-return-void)
     - [Call methods that return results](#call-methods-that-return-results)
 - [Call static methods](#call-static-methods)
+- [Call generic methods](#call-generic-methods)
 - [Benchmark results](#benchmark-results)
 - [Change cache settings](#change-cache-settings)
 - [License](#license)
 
 ## The example class
 
-We will use this class in our examples.
+We will use these classes in our examples.
 ```
 public class Person
 {
@@ -56,6 +57,26 @@ public class Person
     }
 
     public static int PlusOneStatic(int i) => i + 1;
+
+    public T1 GenericFunc(string s, T2 input)
+        where T1: ISkill, new()
+    {
+        var rs = new T1();
+        foreach (var skill in skills)
+        {
+            rs.Skills.add(skill);
+        }
+    }
+}
+
+public interface ISkill
+{
+    public List<string> Skills { get; set; }
+}
+
+public class Skill : ISkill
+{
+    public List<string> Skills { get; set; } = new List<string>();
 }
 ```
 
@@ -150,6 +171,34 @@ Notice that we are using `null` as the target of our delegate. When calling a pa
 ```
 var rs = invocator(null, null);
 ```
+
+## Call generic methods
+
+Both `Invocator.CreateAction` and `Invocator.CreateFunc` accept an optional argument of type [GenericInfo](/FastAndFaster/Helpers/GenericInfo.cs). This argument enables the invocation of generic methods. We use dynamic code generation to execute the code below.
+```
+Person person = new Person();
+Skill rs = person.GenericFunc<Skill, bool>("James Bond", true);
+```
+
+The arguments of `GenericFunc` is `(string s, T2 input)`. Because we only have one generic parameter at index 1 (the second parameter), we set `GenericInfo.GenericTypeIndex = new[] { 1 }`. And because we use `T1 == Skill, T2 == bool`, we set `GenericInfo.GenericTypeIndex == new[] { typeof(Skill), typeof(bool) }`. The static code above is equivalent to:
+```
+var typeName = typeof(Person).AssemblyQualifiedName;
+var methodName = nameof(Person.GenericFunc);
+var argumentTypes = new[] { typeof(string), typeof(bool) };
+var arguments = new object[] { "James Bond", true };
+var genericInfo = new GenericInfo
+{
+    GenericTypeIndex = new[] { 1 },
+    GenericTypeIndex == new[] { typeof(Skill), typeof(bool) }
+};
+
+var invocator = Invocator.CreateFunc(typeName, methodName, argumentTypes, genericInfo);
+var target = new Person();
+
+var rs = invocator(target, arguments);
+```
+
+The code to call a generic method that returns void is almost identical, we only need to change `Invocator.CreateFunc` to `Invocator.CreateAction`.
 
 ## Change cache settings
 
