@@ -13,7 +13,7 @@ namespace FastAndFaster.Tests.DummyClasses
 
         public static int FuncParameterlessData { get; set; } = 1989;
 
-        public static IEnumerable<int> InterfaceTestData { get; private set; }
+        public static int InterfaceTestData { get; private set; }
 
         public static void ActionParameterless() => ActionParameterlessCalled = true;
 
@@ -40,6 +40,6 @@ namespace FastAndFaster.Tests.DummyClasses
 
         public static int FuncWithInterface(IEnumerable<string> names) => names.Count();
 
-        public static void ActionWithInterface(int size) => InterfaceTestData = Enumerable.Range(0, size);
+        public static void ActionWithInterface(IEnumerable<int> ages) => InterfaceTestData = ages.Count();
     }
 }

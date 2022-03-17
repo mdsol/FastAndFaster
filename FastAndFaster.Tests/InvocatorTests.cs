@@ -313,9 +313,8 @@ namespace FastAndFaster.Tests
                 .WithMessage($"Cannot find any class with Assembly Qualified Name: {fakeTypeName}");
         }
 
-        public static IEnumerable<object[]> CreateFuncIncorrectSignatureData()
-        {
-            return new List<object[]>
+        public static IEnumerable<object[]> CreateFuncIncorrectSignatureData() =>
+            new List<object[]>
             {
                 new object[] { "fakename", Type.EmptyTypes },
                 new object[]
@@ -324,7 +323,6 @@ namespace FastAndFaster.Tests
                     new[] { typeof(double), typeof(long) } // Wrong types
                 }
             };
-        }
 
         [Theory]
         [MemberData(nameof(CreateFuncIncorrectSignatureData))]
@@ -356,9 +354,8 @@ namespace FastAndFaster.Tests
                 .WithMessage($"Cannot find any class with Assembly Qualified Name: {fakeTypeName}");
         }
 
-        public static IEnumerable<object[]> CreateActionIncorrectSignatureData()
-        {
-            return new List<object[]>
+        public static IEnumerable<object[]> CreateActionIncorrectSignatureData() =>
+            new List<object[]>
             {
                 new object[] { "fakename", Type.EmptyTypes },
                 new object[]
@@ -367,7 +364,6 @@ namespace FastAndFaster.Tests
                     new[] { typeof(double), typeof(long) } // Wrong type
                 }
             };
-        }
 
         [Theory]
         [MemberData(nameof(CreateFuncIncorrectSignatureData))]
@@ -414,9 +410,8 @@ namespace FastAndFaster.Tests
                 .WithMessage($"Cannot find method [{methodName}] with the given signature");
         }
 
-        public static IEnumerable<object[]> InterfaceData()
-        {
-            return new List<object[]>
+        public static IEnumerable<object[]> InterfaceData() =>
+            new List<object[]>
             {
                 new object[]
                 {
@@ -433,11 +428,10 @@ namespace FastAndFaster.Tests
                     new List<int> { 0, 1, 2 }
                 }
             };
-        }
 
         [Theory]
         [MemberData(nameof(InterfaceData))]
-        public void ShouldCallMethodViaInterface(
+        public void ShouldCallMethod_InterfaceInputOrOutput(
             string methodName, Type[] argumentTypes, object[] arguments, object expectedRs)
         {
             // Arrange
