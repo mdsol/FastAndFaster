@@ -30,7 +30,7 @@ namespace FastAndFaster
         /// <param name="parameterTypes">
         /// The list of the method's parameter types. For a parameterless method, this value can be omitted.
         /// </param>
-        /// <param name="parameterTypes">
+        /// <param name="genericInfo">
         /// The list of concrete types and index of generic parameter types in the target method.
         /// For a non-generic method, this parameter is omitted.
         /// </param>
@@ -38,7 +38,7 @@ namespace FastAndFaster
         /// A delegate to invoke the target method. The delegate type is Action<object, object[]>.
         /// </returns>
         public static Action<object, object[]> CreateAction(
-            string typeName, string methodName, Type[] parameterTypes = null, GenericInfo genericInfo = null) // TODO: add genericInfo to docstring
+            string typeName, string methodName, Type[] parameterTypes = null, GenericInfo genericInfo = null)
         {
             if (parameterTypes is null)
             {
@@ -77,7 +77,7 @@ namespace FastAndFaster
         /// <param name="parameterTypes">
         /// The list of the method's parameter types. For a parameterless method, this value can be omitted.
         /// </param>
-        /// <param name="parameterTypes">
+        /// <param name="genericInfo">
         /// The list of concrete types and index of generic parameter types in the target method.
         /// For a non-generic method, this parameter is omitted.
         /// </param>
