@@ -2,12 +2,7 @@
 
 The reflection API is the default way to dynamically initialize objects and call their methods at runtime. However, it is quite a bit slower than the equivalent static code. The goal of this library is to speed up such processes by utilizing dynamic code generation. It is inspired by the [FastMember](https://github.com/mgravell/fast-member) library.
 
-You can find more information about this library in the following blog post.
-
-[Article on Medidata R&D Community](https://github.com/duong-mdsol/FastAndFaster
-https://dsext001-eu1-215dsi0708-ifwe.3dexperience.3ds.com///#app:X3DMCTY_AP/content:url=https%3A%2F%2Fdsext001-eu1-215dsi0708-3dswym%2e3dexperience%2e3ds%2ecom&community=k-qK1CFpS2qhQzhlwrAHIw&contentType=post&contentId=ALBm1I_8RXaejD35x2K9Jw
-https://duongnt.com/dynamic-code-generator
-)
+You can find more information about this library in [this blog post](https://dsext001-eu1-215dsi0708-ifwe.3dexperience.3ds.com///#app:X3DMCTY_AP/content:url=https%3A%2F%2Fdsext001-eu1-215dsi0708-3dswym%2e3dexperience%2e3ds%2ecom&community=k-qK1CFpS2qhQzhlwrAHIw&contentType=post&contentId=ALBm1I_8RXaejD35x2K9Jw).
 
 ## Menu
 
