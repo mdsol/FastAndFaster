@@ -4,17 +4,27 @@ C# .NET is mostly a static language. While it's possible to use the Reflection A
 
 This library is an implementation of that.
 
-
 ## Use dynamic code generator to simulate static code
 
 Let's say we have this very simple class.
 
 ```csharp
+public class TestClass
+{
+    public TestClass() { }
+
+    public string Introduce(string first, string last) =>
+        $"The name is {last}, {first} {last}";
+}
 ```
 
 We can write the following methods to create an object and call the Introduce method. Note that all arguments and return values are cast to `object` type. This is to make sure that the interface of our library is generic enough to handle all method signatures. You might notice that it is the same approach that the ReflectionAPI uses.
 
 ```csharp
+public static object CreateTestClass() => new TestClass();
+
+public static object CallIntroduce(object target, object[] arguments) =>
+    ((TestClass)target).Introduce((string)arguments[0], (string)arguments[1]);
 ```
 
 Given a class name, method name, and the list of parameter types, our goal is to use dynamic code generator to create delegates that are functionally identical to the methods above. If we use the same IL code, the performance of those delegates should be comparable to static code. They can then be used to replace the ReflectionAPI.
@@ -22,8 +32,7 @@ Given a class name, method name, and the list of parameter types, our goal is to
 
 ## The flow to create a delegate
 
-```csharp
-```
+![](./images/overview_flow.png)
 
 The steps are below.
 - Use the provided class name, method name, and the list of parameter types to retrieve the corresponding `MethodInfo` (or `ConstructorInfo` if we are trying to call a constructor).
@@ -32,17 +41,26 @@ The steps are below.
 
 Moreover, because it is likely that we would want to repeatedly call the same method with different arguments, it makes sense to store the created delegates in a cache. The cache key is crafted from the class name, the method name, and the list of method parameters (generic ones included). By default, each cache entry has a sliding expiration time of 12 hours. But this is configurable.
 
-
 ## Non-generic code sample
 
 Below is the code to create objects of type `TestClass`. Note that for a parameterless constructor/method, we can explicitly use `Type.EmptyType` as parameter types, or we can omit it altogether.
 
 ```csharp
+var typeName = typeof(TestClass).AssemblyQualifiedName;
+var initializer = Initializer.Create(typeName, Type.EmptyTypes);
+var instance = initializer(null);
 ```
 
 Then we can call the `Introduce` method on the created object.
 
 ```csharp
+var typeName = typeof(TestClass).AssemblyQualifiedName;
+var methodName = nameof(TestClass.Introduce);
+var argumentTypes = new[] { typeof(string), typeof(string) };
+var arguments = new object[] { "James", "Bonds" };
+
+var invocator = Invocator.CreateFunc(typeName, methodName, argumentTypes);
+var result = invocator(instance, arguments);
 ```
 
 To call a method that returns void, we simply switch from `Invocator.CreateFunc` to `Invocator.CreateAction`.
@@ -53,6 +71,12 @@ To call a method that returns void, we simply switch from `Invocator.CreateFunc`
 To call a generic method, we need to provide a list of concrete types, as well as specify which method parameters are generic. This information is provided by the `GenericInfo` type.
 
 ```csharp
+public class genericInfo
+{
+    public int[] GenericTypeIndex { get; set; } = new int[0];
+
+    public Type[] GenericType { get; set; } = new Type[0];
+}
 ```
 
 Let's say we want to call a method with this signature: `public void Method<T1, T2>(string s, T2 input)`.
@@ -60,17 +84,14 @@ Let's say we want to call a method with this signature: `public void Method<T1, 
 We can see that it has two generic types, `T1` and `T2`. Moreover, its second parameter (index 1) is a generic parameter. To call it with `T1 == int` and `T2 == string`, we create this `GenericInfo` object and pass it to the `CreateFunc` method.
 
 ```csharp
+var genericInfo = new genericInfo
+{
+    GenericTypeIndex = new[] { 1 },
+    GenericType = new[] { typeof(int), typeof(string) };
+}
 ```
 
 For non-generic methods, `GenericInfo` can be omitted.
-
-## Benchmark
-
-This is the comparison between static code, this library, and the ReflectionAPI.
-
-![]()
-
-In all cases, the performance of our library is much closer to static C# code than to the reflection API.
 
 ## Limitations
 

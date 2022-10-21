@@ -91,10 +91,10 @@ object instance = initializer(null); // Because we are calling a parameterless c
 
 To call a constructor which has parameter(s), we must supply a list of types. The arguments can then be passed as an array of objects.
 ```csharp
-var parameterTypes = new[] { typeof(string), typeof(string) };
+var parameterTypes = new[] { typeof(string), typeof(int) };
 Func<object[], object> initializer = Initializer.Create(typeName, parameterTypes);
 
-var arguments = new object[] { "Duong", "32" };
+var arguments = new object[] { "Duong", 32 };
 object instance = initializer(arguments);
 ```
 
@@ -178,7 +178,7 @@ Person person = new Person();
 Skill rs = person.GenericFunc<Skill, bool>("James Bond", true);
 ```
 
-The arguments of `GenericFunc` is `(string s, T2 input)`. Because we only have one generic parameter at index 1 (the second parameter), we set `GenericInfo.GenericTypeIndex = new[] { 1 }`. And because we use `T1 == Skill, T2 == bool`, we set `GenericInfo.GenericTypeIndex == new[] { typeof(Skill), typeof(bool) }`. The static code above is equivalent to:
+The arguments of `GenericFunc` is `(string s, T2 input)`. Because we only have one generic parameter at index 1 (the second parameter), we set `GenericInfo.GenericTypeIndex = new[] { 1 }`. And because we use `T1 == Skill, T2 == bool`, we set `GenericInfo.GenericType == new[] { typeof(Skill), typeof(bool) }`. The static code above is equivalent to:
 ```csharp
 var typeName = typeof(Person).AssemblyQualifiedName;
 var methodName = nameof(Person.GenericFunc);
@@ -214,40 +214,7 @@ This library comes with a benchmark project, which can be found [here](/FastAndF
 
 Below are some results for the reflection API, static C# code, and this library.
 
-### Object creation
-|                          Method |      Mean |     Error |    StdDev |  Gen 0 | Gen 1 | Gen 2 | Allocated |
-|-------------------------------- |----------:|----------:|----------:|-------:|------:|------:|----------:|
-|       Reflection_CreateInstance | 33.835 ns | 0.6646 ns | 0.5892 ns | 0.0063 |     - |     - |      40 B |
-| DynamicGenerator_CreateInstance |  4.348 ns | 0.0885 ns | 0.0785 ns | 0.0064 |     - |     - |      40 B |
-|           Static_CreateInstance |  2.737 ns | 0.0813 ns | 0.0721 ns | 0.0064 |     - |     - |      40 B |
-
-### Call an instance method that returns `void`
-|                      Method |       Mean |     Error |    StdDev |  Gen 0 | Gen 1 | Gen 2 | Allocated |
-|---------------------------- |-----------:|----------:|----------:|-------:|------:|------:|----------:|
-|       Reflection_CallAction | 164.920 ns | 2.7548 ns | 3.3832 ns | 0.0062 |     - |     - |      40 B |
-| DynamicGenerator_CallAction |   4.707 ns | 0.0988 ns | 0.0924 ns |      - |     - |     - |         - |
-|           Static_CallAction |   1.900 ns | 0.0386 ns | 0.0342 ns |      - |     - |     - |         - |
-
-### Call an instance method that returns results
-|                    Method |       Mean |     Error |    StdDev |     Median |  Gen 0 | Gen 1 | Gen 2 | Allocated |
-|-------------------------- |-----------:|----------:|----------:|-----------:|-------:|------:|------:|----------:|
-|       Reflection_CallFunc | 195.186 ns | 2.5206 ns | 2.3578 ns | 194.786 ns | 0.0100 |     - |     - |      64 B |
-| DynamicGenerator_CallFunc |   5.863 ns | 0.1851 ns | 0.1545 ns |   5.790 ns | 0.0038 |     - |     - |      24 B |
-|           Static_CallFunc |   2.163 ns | 0.1300 ns | 0.3602 ns |   2.046 ns | 0.0038 |     - |     - |      24 B |
-
-### Call a static method that returns `void`
-|                            Method |        Mean |     Error |    StdDev |      Median |  Gen 0 | Gen 1 | Gen 2 | Allocated |
-|---------------------------------- |------------:|----------:|----------:|------------:|-------:|------:|------:|----------:|
-|       Reflection_CallStaticAction | 162.2037 ns | 3.1451 ns | 5.1675 ns | 161.1659 ns | 0.0062 |     - |     - |      40 B |
-| DynamicGenerator_CallStaticAction |   3.5516 ns | 0.1019 ns | 0.1133 ns |   3.5288 ns |      - |     - |     - |         - |
-|           Static_CallStaticAction |   0.0100 ns | 0.0127 ns | 0.0119 ns |   0.0055 ns |      - |     - |     - |         - |
-
-### Call a static method that returns results
-|                          Method |       Mean |     Error |    StdDev |  Gen 0 | Gen 1 | Gen 2 | Allocated |
-|-------------------------------- |-----------:|----------:|----------:|-------:|------:|------:|----------:|
-|       Reflection_CallStaticFunc | 188.508 ns | 3.2940 ns | 3.0812 ns | 0.0100 |     - |     - |      64 B |
-| DynamicGenerator_CallStaticFunc |   4.472 ns | 0.1700 ns | 0.1590 ns | 0.0038 |     - |     - |      24 B |
-|           Static_CallStaticFunc |   2.081 ns | 0.0760 ns | 0.0711 ns | 0.0038 |     - |     - |      24 B |
+![](./doc/images/readme_benchmark.png)
 
 We can see that in all cases, the performance of our library is much closer to static C# code than to the reflection API.
 
