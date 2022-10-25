@@ -13,8 +13,8 @@ For more information about this library, see the [overview](doc/OVERVIEW.md).
   - [Call methods that return results](#call-methods-that-return-results)
 - [Call static methods](#call-static-methods)
 - [Call generic methods](#call-generic-methods)
-- [Benchmark results](#benchmark-results)
 - [Change cache settings](#change-cache-settings)
+- [Run the benchmark](#run-the-benchmark)
 - [License](#license)
 
 ## The example class
