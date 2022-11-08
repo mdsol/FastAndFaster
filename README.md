@@ -1,3 +1,7 @@
+# Deprecated
+
+This repository has been superseded by the original author's [fork](https://github.com/duongntbk/FastAndFaster).
+
 # A quicker way to initialize objects and call methods
 
 The reflection API is the default way to dynamically initialize objects and call their methods at runtime. However, it is quite a bit slower than the equivalent static code. The goal of this library is to speed up such processes by utilizing dynamic code generation. It is inspired by the [FastMember](https://github.com/mgravell/fast-member) library.
