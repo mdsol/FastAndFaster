@@ -1,9 +1,6 @@
-# Deprecation Notice
+# Deprecated
 
-This repository will be deprecated and archived by 2022/11/15.
-
-The project however will continue to be worked on in the new repository
-https://github.com/duongntbk/FastAndFaster
+This repository has been superseded by the original author's [fork](https://github.com/duongntbk/FastAndFaster).
 
 # A quicker way to initialize objects and call methods
 
